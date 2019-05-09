@@ -1,0 +1,11 @@
+Los Script al tener en la clausula where el atributo -notin lo que indica es que saque todos los
+dispositivos de una PNPClass excepto los citados.Si ponemos -in solo sacara los indicados en la 
+clausula where.
+
+El User Parameter del agente del -NOTIN Script seria:
+UserParameter=system.hw.devices2,powershell.exe -NoProfile -ExecutionPolicy bypass -File "<PATH>"
+
+El User Parameter del agente del -IN Script seria:
+UserParameter=system.hw.devices3,powershell.exe -NoProfile -ExecutionPolicy bypass -File "<PATH>"
+
+Retorna ambos una cadena de texto que habra que ser configurada en la creacion del item.

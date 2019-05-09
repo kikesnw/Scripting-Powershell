@@ -1,0 +1,91 @@
+Instrucciones a seguir a la hora de utilizar Zabbix.
+
+1. Zabbix Ubuntu
+
+-Se ha instalado Zabbix en una maquina virtual corriendo sobre un ubuntu
+ con la imagen de zabbix_appliance3.2.1x86_64: zabbix_appliance_4.2.1_x86_64.iso
+
+-Se le ha configurado el proxy de Indra para que tenga conexion para que se actualicen
+todos los repositorios 
+	>Sudo apt update
+	>Sudo apt upgrade
+-Nota: cada de vez que se reinicia la máquina o se inicia de cero hay que asignar la ip al segundo adapatador de 
+red para que este tenga comunicacion con la maquina host.Para eso se llama a la funcion del dhcp que si no esta instalado
+hay que instalarlo.
+	>sudo dhcpcd5 enp0s8
+	donde enp0s8 es el adaptador de red que en mi caso le tiene que asignar la ip mi dhcp
+
+-Se sigue el manual de instalacion de zabbix y tendriamos nuestro servidor zabbix en funcionamiento.
+La carpeta de instalacion se encuentra en: /etc/init.d/
+Comandos para el servidor: (mas comandos en: https://www.zabbix.com/documentation/3.0/manual/concepts/server)
+-"zabbix_server -h" obtienes la ayuda del servidor
+-"zabbix_server -v" obtienes la version del servidor
+
+2.Windows monitoreado
+
+-Se descarga el Agente de Zabbix para windows donde te vendra una carpeta para instalarlo en X86 o X84.
+Creamos una carpeta llamada "zabbix" en la raiz C:\. 
+-En nuestro caso elegimos X64 y lo llevamos a la carpeta zabbix junto con el archivo .conf en la carpeta previa.
+-Renombramos el archivo _.conf a zabbix_agentd.conf.
+-Abriremos ese archivo con cualquier editor de texto y modificaremos lo siguiente:
+*LogFile=<PATH>* donde queremos que se guarden los logs
+*EnableRemoteCommands=1* para que se puedan ejecutar comandos en remoto
+*Server=192.168.56.101* ip donde esta alojado el zabbix.
+*ListenPort=10051* puerto por el que conectaremos al zabbix (Rango de 1024-32767)
+*ServerActive=192.168.56.101* volvemos a poner la direccion ip del zabbix
+*Hostname=CEGONZALEZD10.INDRA.ES* nombre del equipo donde se esta instalando el agente
+*Timeout=30* necesario por si tarda mucho en procesar el Script para que le de tiempo a llegar al servidor.
+
+*UserParameter=system.hw.devices,powershell.exe -NoProfile -ExecutionPolicy bypass -File "<PATH>"* este es el 
+lugar donde se indicara el Script que sera ejecutado con la configuracion dada.
+UserParameter=<Tipo de item definido por zabbix.nombre que queramos(EJEMPLO: service.hola o system.hw.hola)>,<opciones que se van a ejecutar(dejar por defecto y solo modificar el path del Script porwershell)>
+NOTA:Si se van ejecutar varios Scripts habria que definir otro UserParameter= con sus caracteristicas, el tipo
+de item con su nombre que le hayamos dado es el que sera llamado luego desde el zabbix en su apartado de item key.
+
+-Una vez configurado bien el agente abrimos un CMD y nos posicionamos en la carpeta del agente e introducimos
+	> <nombre agente>.exe start 
+-Si queremos hacer alguna modificacion habra que pararlo con Stop y volverlo a iniciar.
+-Si el agente no inicia para saber que error nos da utilizamos el siguiente comando:
+	> <nombre agente>.exe --config <nombre agente>.conf
+
+3.Zabbix interfaz
+
+-Ya configurados el agente y el zabbix server, para acceder a la interfaz del zabbix tendremos que poner
+la ip/zabbix en el navegador del zabbix server en nuestro caso:
+	>http://192.168.56.101/zabbix
+
+-Crearemos un nuevo host en la zona de configuraciones para que reconozca el Windows donde se ha instalado el agente
+	En host name ponemos el nombre de nuestra maquina Windows en nuestro caso CEGONZALEZD.INDRA.ES
+	Le damos el visible name que queramos .
+	En Groups seleccionamos Discovered hosts
+	En Agent interfaces ponemos nuestra ip 192.168.56.1, dns CEGONZALEZD.INDRA.ES, CONNET TO IP, PORT 10051 en 	nuestro caso.
+	En la parte de templates buscamos template os windows le añadimos y le damos a update.
+	Ya tenemos el host Creado.
+
+-Vamos a añadir el item para que reconozca uno de los scripts en el host.
+	Nos posicionamos en el host que hemos añadido y en el apartado de items le damos a crear un nuevo item.
+	Ponemos un nombre cualquiera del item(antes del punto tiene que ser un item que esta definido para zabbix 		como service. o system.hw.), seleccionamos los demas parametros segun el powershell, y en item key se pone 		el nombreque se le ha dado al path del user parameters, es decir,
+	UserParameter=service.discord,powershell.exe -NoProfile -ExecutionPolicy Bypass -file "C:\Zabbix		\Service_Discovery.ps1"
+	En item key en nuestro caso pondriamos service.discord.
+
+-Ya tendriamos nuestro Script sacando los datos del host.
+
+*En el servidor donde esta instalado el zabbix para ejecutar un script que esta instalado en la maquina host hay que utilziar el siguiente comando, recordar que en el .conf tiene que estar habilitado el apartado  EnableRemoteCommands=1
+"zabbix_get -s 192.168.56.1 -p 10051 -k service.discord" con unn formato:
+"zabbix_get -s [ip o host name] -p [Nº puerto] -k [nombre de la key que queramos(<item de zabbix>.holamundo)]"
+	
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,4 @@
+El Script lo que hace es devolver un  boolean con verdadero o falso (en formato INT) si encuentra el ID del dispositivo.Indicando que este estaria en correcto funcionamiento o no.
+
+El user parameter del agente es:
+UserParameter=script.proyector,powershell.exe -NoProfile -ExecutionPolicy bypass -File "<PATH>"

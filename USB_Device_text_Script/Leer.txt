@@ -1,0 +1,5 @@
+Script Working
+Se incluye imagen de como se ha creado el item en zabbix donde en el agente se habra hecho referencia a los mismos datos.
+El Script retorna una cadena de texto en formato String de los dispositivos USB y su estado.
+Se incluye el Agente instalado en el windows donde habria que añadir el path del Script
+
